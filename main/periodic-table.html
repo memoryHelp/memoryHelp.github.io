@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Periodic Table - Memorise</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/periodic-table.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="js/navbar-loader.js"></script>
+</head>
+<body data-navbar-autoload>
+    <!-- Navigation will be loaded here by navbar-loader.js -->
+    <div id="navbar-container"></div>
+    
+    <a href="index.html" class="home-link">
+        <i class="fas fa-home"></i> Home
+    </a>
+    
+    <div class="overlay" id="overlay" onclick="closeElementInfo()"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Interactive Periodic Table</h1>
+            <p class="subtitle">Click on any element to learn more about it</p>
+        </div>
+        
+        <div class="periodic-table" id="periodicTable"></div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color alkali"></div>
+                <span>Alkali Metals</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color alkaline"></div>
+                <span>Alkaline Earth</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color transition"></div>
+                <span>Transition Metals</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color lanthanide"></div>
+                <span>Lanthanides</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color actinide"></div>
+                <span>Actinides</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color metalloid"></div>
+                <span>Metalloids</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color nonmetal"></div>
+                <span>Nonmetals</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color halogen"></div>
+                <span>Halogens</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color noble"></div>
+                <span>Noble Gases</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="element-info" id="elementInfo">
+        <button class="close-btn" onclick="closeElementInfo()">&times;</button>
+        <div class="element-header">
+            <div class="element-symbol-large" id="elementSymbolLarge">H</div>
+            <div class="element-name-large" id="elementNameLarge">Hydrogen</div>
+            <div class="element-atomic-large" id="elementAtomicLarge">Atomic Number: 1</div>
+        </div>
+        <div class="element-details">
+            <div class="detail-item">
+                <div class="detail-label">Atomic Mass</div>
+                <div class="detail-value" id="atomicMass">1.008</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Category</div>
+                <div class="detail-value" id="category">Nonmetal</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Electron Configuration</div>
+                <div class="detail-value" id="electronConfig">1s¹</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">State at Room Temp</div>
+                <div class="detail-value" id="state">Gas</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Complete periodic table data (all 118 elements)
+        const elements = [
+            // Period 1
+            { symbol: 'H', name: 'Hydrogen', atomicNumber: 1, atomicMass: '1.008', category: 'nonmetal', electronConfig: '1s¹', state: 'Gas', position: 1 },
+            { symbol: 'He', name: 'Helium', atomicNumber: 2, atomicMass: '4.003', category: 'noble', electronConfig: '1s²', state: 'Gas', position: 18 },
+            
+            // Period 2
+            { symbol: 'Li', name: 'Lithium', atomicNumber: 3, atomicMass: '6.941', category: 'alkali', electronConfig: '[He] 2s¹', state: 'Solid', position: 19 },
+            { symbol: 'Be', name: 'Beryllium', atomicNumber: 4, atomicMass: '9.012', category: 'alkaline', electronConfig: '[He] 2s²', state: 'Solid', position: 20 },
+            { symbol: 'B', name: 'Boron', atomicNumber: 5, atomicMass: '10.811', category: 'metalloid', electronConfig: '[He] 2s² 2p¹', state: 'Solid', position: 31 },
+            { symbol: 'C', name: 'Carbon', atomicNumber: 6, atomicMass: '12.011', category: 'nonmetal', electronConfig: '[He] 2s² 2p²', state: 'Solid', position: 32 },
+            { symbol: 'N', name: 'Nitrogen', atomicNumber: 7, atomicMass: '14.007', category: 'nonmetal', electronConfig: '[He] 2s² 2p³', state: 'Gas', position: 33 },
+            { symbol: 'O', name: 'Oxygen', atomicNumber: 8, atomicMass: '15.999', category: 'nonmetal', electronConfig: '[He] 2s² 2p⁴', state: 'Gas', position: 34 },
+            { symbol: 'F', name: 'Fluorine', atomicNumber: 9, atomicMass: '18.998', category: 'halogen', electronConfig: '[He] 2s² 2p⁵', state: 'Gas', position: 35 },
+            { symbol: 'Ne', name: 'Neon', atomicNumber: 10, atomicMass: '20.180', category: 'noble', electronConfig: '[He] 2s² 2p⁶', state: 'Gas', position: 36 },
+            
+            // Period 3
+            { symbol: 'Na', name: 'Sodium', atomicNumber: 11, atomicMass: '22.990', category: 'alkali', electronConfig: '[Ne] 3s¹', state: 'Solid', position: 37 },
+            { symbol: 'Mg', name: 'Magnesium', atomicNumber: 12, atomicMass: '24.305', category: 'alkaline', electronConfig: '[Ne] 3s²', state: 'Solid', position: 38 },
+            { symbol: 'Al', name: 'Aluminum', atomicNumber: 13, atomicMass: '26.982', category: 'transition', electronConfig: '[Ne] 3s² 3p¹', state: 'Solid', position: 49 },
+            { symbol: 'Si', name: 'Silicon', atomicNumber: 14, atomicMass: '28.086', category: 'metalloid', electronConfig: '[Ne] 3s² 3p²', state: 'Solid', position: 50 },
+            { symbol: 'P', name: 'Phosphorus', atomicNumber: 15, atomicMass: '30.974', category: 'nonmetal', electronConfig: '[Ne] 3s² 3p³', state: 'Solid', position: 51 },
+            { symbol: 'S', name: 'Sulfur', atomicNumber: 16, atomicMass: '32.065', category: 'nonmetal', electronConfig: '[Ne] 3s² 3p⁴', state: 'Solid', position: 52 },
+            { symbol: 'Cl', name: 'Chlorine', atomicNumber: 17, atomicMass: '35.453', category: 'halogen', electronConfig: '[Ne] 3s² 3p⁵', state: 'Gas', position: 53 },
+            { symbol: 'Ar', name: 'Argon', atomicNumber: 18, atomicMass: '39.948', category: 'noble', electronConfig: '[Ne] 3s² 3p⁶', state: 'Gas', position: 54 },
+            
+            // Period 4
+            { symbol: 'K', name: 'Potassium', atomicNumber: 19, atomicMass: '39.098', category: 'alkali', electronConfig: '[Ar] 4s¹', state: 'Solid', position: 55 },
+            { symbol: 'Ca', name: 'Calcium', atomicNumber: 20, atomicMass: '40.078', category: 'alkaline', electronConfig: '[Ar] 4s²', state: 'Solid', position: 56 },
+            { symbol: 'Sc', name: 'Scandium', atomicNumber: 21, atomicMass: '44.956', category: 'transition', electronConfig: '[Ar] 3d¹ 4s²', state: 'Solid', position: 57 },
+            { symbol: 'Ti', name: 'Titanium', atomicNumber: 22, atomicMass: '47.867', category: 'transition', electronConfig: '[Ar] 3d² 4s²', state: 'Solid', position: 58 },
+            { symbol: 'V', name: 'Vanadium', atomicNumber: 23, atomicMass: '50.942', category: 'transition', electronConfig: '[Ar] 3d³ 4s²', state: 'Solid', position: 59 },
+            { symbol: 'Cr', name: 'Chromium', atomicNumber: 24, atomicMass: '51.996', category: 'transition', electronConfig: '[Ar] 3d⁵ 4s¹', state: 'Solid', position: 60 },
+            { symbol: 'Mn', name: 'Manganese', atomicNumber: 25, atomicMass: '54.938', category: 'transition', electronConfig: '[Ar] 3d⁵ 4s²', state: 'Solid', position: 61 },
+            { symbol: 'Fe', name: 'Iron', atomicNumber: 26, atomicMass: '55.845', category: 'transition', electronConfig: '[Ar] 3d⁶ 4s²', state: 'Solid', position: 62 },
+            { symbol: 'Co', name: 'Cobalt', atomicNumber: 27, atomicMass: '58.933', category: 'transition', electronConfig: '[Ar] 3d⁷ 4s²', state: 'Solid', position: 63 },
+            { symbol: 'Ni', name: 'Nickel', atomicNumber: 28, atomicMass: '58.693', category: 'transition', electronConfig: '[Ar] 3d⁸ 4s²', state: 'Solid', position: 64 },
+            { symbol: 'Cu', name: 'Copper', atomicNumber: 29, atomicMass: '63.546', category: 'transition', electronConfig: '[Ar] 3d¹⁰ 4s¹', state: 'Solid', position: 65 },
+            { symbol: 'Zn', name: 'Zinc', atomicNumber: 30, atomicMass: '65.38', category: 'transition', electronConfig: '[Ar] 3d¹⁰ 4s²', state: 'Solid', position: 66 },
+            { symbol: 'Ga', name: 'Gallium', atomicNumber: 31, atomicMass: '69.723', category: 'transition', electronConfig: '[Ar] 3d¹⁰ 4s² 4p¹', state: 'Solid', position: 67 },
+            { symbol: 'Ge', name: 'Germanium', atomicNumber: 32, atomicMass: '72.63', category: 'metalloid', electronConfig: '[Ar] 3d¹⁰ 4s² 4p²', state: 'Solid', position: 68 },
+            { symbol: 'As', name: 'Arsenic', atomicNumber: 33, atomicMass: '74.922', category: 'metalloid', electronConfig: '[Ar] 3d¹⁰ 4s² 4p³', state: 'Solid', position: 69 },
+            { symbol: 'Se', name: 'Selenium', atomicNumber: 34, atomicMass: '78.96', category: 'nonmetal', electronConfig: '[Ar] 3d¹⁰ 4s² 4p⁴', state: 'Solid', position: 70 },
+            { symbol: 'Br', name: 'Bromine', atomicNumber: 35, atomicMass: '79.904', category: 'halogen', electronConfig: '[Ar] 3d¹⁰ 4s² 4p⁵', state: 'Liquid', position: 71 },
+            { symbol: 'Kr', name: 'Krypton', atomicNumber: 36, atomicMass: '83.798', category: 'noble', electronConfig: '[Ar] 3d¹⁰ 4s² 4p⁶', state: 'Gas', position: 72 },
+            
+            // Period 5
+            { symbol: 'Rb', name: 'Rubidium', atomicNumber: 37, atomicMass: '85.468', category: 'alkali', electronConfig: '[Kr] 5s¹', state: 'Solid', position: 73 },
+            { symbol: 'Sr', name: 'Strontium', atomicNumber: 38, atomicMass: '87.62', category: 'alkaline', electronConfig: '[Kr] 5s²', state: 'Solid', position: 74 },
+            { symbol: 'Y', name: 'Yttrium', atomicNumber: 39, atomicMass: '88.906', category: 'transition', electronConfig: '[Kr] 4d¹ 5s²', state: 'Solid', position: 75 },
+            { symbol: 'Zr', name: 'Zirconium', atomicNumber: 40, atomicMass: '91.224', category: 'transition', electronConfig: '[Kr] 4d² 5s²', state: 'Solid', position: 76 },
+            { symbol: 'Nb', name: 'Niobium', atomicNumber: 41, atomicMass: '92.906', category: 'transition', electronConfig: '[Kr] 4d⁴ 5s¹', state: 'Solid', position: 77 },
+            { symbol: 'Mo', name: 'Molybdenum', atomicNumber: 42, atomicMass: '95.96', category: 'transition', electronConfig: '[Kr] 4d⁵ 5s¹', state: 'Solid', position: 78 },
+            { symbol: 'Tc', name: 'Technetium', atomicNumber: 43, atomicMass: '(98)', category: 'transition', electronConfig: '[Kr] 4d⁵ 5s²', state: 'Solid', position: 79 },
+            { symbol: 'Ru', name: 'Ruthenium', atomicNumber: 44, atomicMass: '101.07', category: 'transition', electronConfig: '[Kr] 4d⁷ 5s¹', state: 'Solid', position: 80 },
+            { symbol: 'Rh', name: 'Rhodium', atomicNumber: 45, atomicMass: '102.91', category: 'transition', electronConfig: '[Kr] 4d⁸ 5s¹', state: 'Solid', position: 81 },
+            { symbol: 'Pd', name: 'Palladium', atomicNumber: 46, atomicMass: '106.42', category: 'transition', electronConfig: '[Kr] 4d¹⁰', state: 'Solid', position: 82 },
+            { symbol: 'Ag', name: 'Silver', atomicNumber: 47, atomicMass: '107.87', category: 'transition', electronConfig: '[Kr] 4d¹⁰ 5s¹', state: 'Solid', position: 83 },
+            { symbol: 'Cd', name: 'Cadmium', atomicNumber: 48, atomicMass: '112.41', category: 'transition', electronConfig: '[Kr] 4d¹⁰ 5s²', state: 'Solid', position: 84 },
+            { symbol: 'In', name: 'Indium', atomicNumber: 49, atomicMass: '114.82', category: 'transition', electronConfig: '[Kr] 4d¹⁰ 5s² 5p¹', state: 'Solid', position: 85 },
+            { symbol: 'Sn', name: 'Tin', atomicNumber: 50, atomicMass: '118.71', category: 'transition', electronConfig: '[Kr] 4d¹⁰ 5s² 5p²', state: 'Solid', position: 86 },
+            { symbol: 'Sb', name: 'Antimony', atomicNumber: 51, atomicMass: '121.76', category: 'metalloid', electronConfig: '[Kr] 4d¹⁰ 5s² 5p³', state: 'Solid', position: 87 },
+            { symbol: 'Te', name: 'Tellurium', atomicNumber: 52, atomicMass: '127.60', category: 'metalloid', electronConfig: '[Kr] 4d¹⁰ 5s² 5p⁴', state: 'Solid', position: 88 },
+            { symbol: 'I', name: 'Iodine', atomicNumber: 53, atomicMass: '126.90', category: 'halogen', electronConfig: '[Kr] 4d¹⁰ 5s² 5p⁵', state: 'Solid', position: 89 },
+            { symbol: 'Xe', name: 'Xenon', atomicNumber: 54, atomicMass: '131.29', category: 'noble', electronConfig: '[Kr] 4d¹⁰ 5s² 5p⁶', state: 'Gas', position: 90 },
+            
+            // Period 6
+            { symbol: 'Cs', name: 'Cesium', atomicNumber: 55, atomicMass: '132.91', category: 'alkali', electronConfig: '[Xe] 6s¹', state: 'Solid', position: 91 },
+            { symbol: 'Ba', name: 'Barium', atomicNumber: 56, atomicMass: '137.33', category: 'alkaline', electronConfig: '[Xe] 6s²', state: 'Solid', position: 92 },
+            { symbol: 'La', name: 'Lanthanum', atomicNumber: 57, atomicMass: '138.91', category: 'lanthanide', electronConfig: '[Xe] 5d¹ 6s²', state: 'Solid', position: 93 },
+            { symbol: 'Ce', name: 'Cerium', atomicNumber: 58, atomicMass: '140.12', category: 'lanthanide', electronConfig: '[Xe] 4f¹ 5d¹ 6s²', state: 'Solid', position: 103 },
+            { symbol: 'Pr', name: 'Praseodym.', atomicNumber: 59, atomicMass: '140.91', category: 'lanthanide', electronConfig: '[Xe] 4f³ 6s²', state: 'Solid', position: 104 },
+            { symbol: 'Nd', name: 'Neodymium', atomicNumber: 60, atomicMass: '144.24', category: 'lanthanide', electronConfig: '[Xe] 4f⁴ 6s²', state: 'Solid', position: 105 },
+            { symbol: 'Pm', name: 'Promethium', atomicNumber: 61, atomicMass: '(145)', category: 'lanthanide', electronConfig: '[Xe] 4f⁵ 6s²', state: 'Solid', position: 106 },
+            { symbol: 'Sm', name: 'Samarium', atomicNumber: 62, atomicMass: '150.36', category: 'lanthanide', electronConfig: '[Xe] 4f⁶ 6s²', state: 'Solid', position: 107 },
+            { symbol: 'Eu', name: 'Europium', atomicNumber: 63, atomicMass: '151.96', category: 'lanthanide', electronConfig: '[Xe] 4f⁷ 6s²', state: 'Solid', position: 108 },
+            { symbol: 'Gd', name: 'Gadolin.', atomicNumber: 64, atomicMass: '157.25', category: 'lanthanide', electronConfig: '[Xe] 4f⁷ 5d¹ 6s²', state: 'Solid', position: 109 },
+            { symbol: 'Tb', name: 'Terbium', atomicNumber: 65, atomicMass: '158.93', category: 'lanthanide', electronConfig: '[Xe] 4f⁹ 6s²', state: 'Solid', position: 110 },
+            { symbol: 'Dy', name: 'Dysprosium', atomicNumber: 66, atomicMass: '162.50', category: 'lanthanide', electronConfig: '[Xe] 4f¹⁰ 6s²', state: 'Solid', position: 111 },
+            { symbol: 'Ho', name: 'Holmium', atomicNumber: 67, atomicMass: '164.93', category: 'lanthanide', electronConfig: '[Xe] 4f¹¹ 6s²', state: 'Solid', position: 112 },
+            { symbol: 'Er', name: 'Erbium', atomicNumber: 68, atomicMass: '167.26', category: 'lanthanide', electronConfig: '[Xe] 4f¹² 6s²', state: 'Solid', position: 113 },
+            { symbol: 'Tm', name: 'Thulium', atomicNumber: 69, atomicMass: '168.93', category: 'lanthanide', electronConfig: '[Xe] 4f¹³ 6s²', state: 'Solid', position: 114 },
+            { symbol: 'Yb', name: 'Ytterb.', atomicNumber: 70, atomicMass: '173.05', category: 'lanthanide', electronConfig: '[Xe] 4f¹⁴ 6s²', state: 'Solid', position: 115 },
+            { symbol: 'Lu', name: 'Lutetium', atomicNumber: 71, atomicMass: '174.97', category: 'lanthanide', electronConfig: '[Xe] 4f¹⁴ 5d¹ 6s²', state: 'Solid', position: 116 },
+            { symbol: 'Hf', name: 'Hafnium', atomicNumber: 72, atomicMass: '178.49', category: 'transition', electronConfig: '[Xe] 4f¹⁴ 5d² 6s²', state: 'Solid', position: 94 },
+            { symbol: 'Ta', name: 'Tantalum', atomicNumber: 73, atomicMass: '180.95', category: 'transition', electronConfig: '[Xe] 4f¹⁴ 5d³ 6s²', state: 'Solid', position: 95 },
+            { symbol: 'W', name: 'Tungsten', atomicNumber: 74, atomicMass: '183.84', category: 'transition', electronConfig: '[Xe] 4f¹⁴ 5d⁴ 6s²', state: 'Solid', position: 96 },
+            { symbol: 'Re', name: 'Rhenium', atomicNumber: 75, atomicMass: '186.21', category: 'transition', electronConfig: '[Xe] 4f¹⁴ 5d⁵ 6s²', state: 'Solid', position: 97 },
+            { symbol: 'Os', name: 'Osmium', atomicNumber: 76, atomicMass: '190.23', category: 'transition', electronConfig: '[Xe] 4f¹⁴ 5d⁶ 6s²', state: 'Solid', position: 98 },
+            { symbol: 'Ir', name: 'Iridium', atomicNumber: 77, atomicMass: '192.22', category: 'transition', electronConfig: '[Xe] 4f¹⁴ 5d⁷ 6s²', state: 'Solid', position: 99 },
+            { symbol: 'Pt', name: 'Platinum', atomicNumber: 78, atomicMass: '195.08', category: 'transition', electronConfig: '[Xe] 4f¹⁴ 5d⁹ 6s¹', state: 'Solid', position: 100 },
+            { symbol: 'Au', name: 'Gold', atomicNumber: 79, atomicMass: '196.97', category: 'transition', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s¹', state: 'Solid', position: 101 },
+            { symbol: 'Hg', name: 'Mercury', atomicNumber: 80, atomicMass: '200.59', category: 'transition', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s²', state: 'Liquid', position: 102 },
+            { symbol: 'Tl', name: 'Thallium', atomicNumber: 81, atomicMass: '204.38', category: 'transition', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p¹', state: 'Solid', position: 103 },
+            { symbol: 'Pb', name: 'Lead', atomicNumber: 82, atomicMass: '207.2', category: 'transition', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p²', state: 'Solid', position: 104 },
+            { symbol: 'Bi', name: 'Bismuth', atomicNumber: 83, atomicMass: '208.98', category: 'transition', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p³', state: 'Solid', position: 105 },
+            { symbol: 'Po', name: 'Polonium', atomicNumber: 84, atomicMass: '(209)', category: 'metalloid', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁴', state: 'Solid', position: 106 },
+            { symbol: 'At', name: 'Astatine', atomicNumber: 85, atomicMass: '(210)', category: 'halogen', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁵', state: 'Solid', position: 107 },
+            { symbol: 'Rn', name: 'Radon', atomicNumber: 86, atomicMass: '(222)', category: 'noble', electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁶', state: 'Gas', position: 108 },
+            
+            // Period 7
+            { symbol: 'Fr', name: 'Francium', atomicNumber: 87, atomicMass: '(223)', category: 'alkali', electronConfig: '[Rn] 7s¹', state: 'Solid', position: 109 },
+            { symbol: 'Ra', name: 'Radium', atomicNumber: 88, atomicMass: '(226)', category: 'alkaline', electronConfig: '[Rn] 7s²', state: 'Solid', position: 110 },
+            { symbol: 'Ac', name: 'Actinium', atomicNumber: 89, atomicMass: '(227)', category: 'actinide', electronConfig: '[Rn] 6d¹ 7s²', state: 'Solid', position: 111 },
+            { symbol: 'Th', name: 'Thorium', atomicNumber: 90, atomicMass: '232.04', category: 'actinide', electronConfig: '[Rn] 6d² 7s²', state: 'Solid', position: 121 },
+            { symbol: 'Pa', name: 'Protactin.', atomicNumber: 91, atomicMass: '231.04', category: 'actinide', electronConfig: '[Rn] 5f² 6d¹ 7s²', state: 'Solid', position: 122 },
+            { symbol: 'U', name: 'Uranium', atomicNumber: 92, atomicMass: '238.03', category: 'actinide', electronConfig: '[Rn] 5f³ 6d¹ 7s²', state: 'Solid', position: 123 },
+            { symbol: 'Np', name: 'Neptunium', atomicNumber: 93, atomicMass: '(237)', category: 'actinide', electronConfig: '[Rn] 5f⁴ 6d¹ 7s²', state: 'Solid', position: 124 },
+            { symbol: 'Pu', name: 'Plutonium', atomicNumber: 94, atomicMass: '(244)', category: 'actinide', electronConfig: '[Rn] 5f⁶ 7s²', state: 'Solid', position: 125 },
+            { symbol: 'Am', name: 'Americium', atomicNumber: 95, atomicMass: '(243)', category: 'actinide', electronConfig: '[Rn] 5f⁷ 7s²', state: 'Solid', position: 126 },
+            { symbol: 'Cm', name: 'Curium', atomicNumber: 96, atomicMass: '(247)', category: 'actinide', electronConfig: '[Rn] 5f⁷ 6d¹ 7s²', state: 'Solid', position: 127 },
+            { symbol: 'Bk', name: 'Berkelium', atomicNumber: 97, atomicMass: '(247)', category: 'actinide', electronConfig: '[Rn] 5f⁹ 7s²', state: 'Solid', position: 128 },
+            { symbol: 'Cf', name: 'Californium', atomicNumber: 98, atomicMass: '(251)', category: 'actinide', electronConfig: '[Rn] 5f¹⁰ 7s²', state: 'Solid', position: 129 },
+            { symbol: 'Es', name: 'Einstein.', atomicNumber: 99, atomicMass: '(252)', category: 'actinide', electronConfig: '[Rn] 5f¹¹ 7s²', state: 'Solid', position: 130 },
+            { symbol: 'Fm', name: 'Fermium', atomicNumber: 100, atomicMass: '(257)', category: 'actinide', electronConfig: '[Rn] 5f¹² 7s²', state: 'Solid', position: 131 },
+            { symbol: 'Md', name: 'Mendelev.', atomicNumber: 101, atomicMass: '(258)', category: 'actinide', electronConfig: '[Rn] 5f¹³ 7s²', state: 'Solid', position: 132 },
+            { symbol: 'No', name: 'Nobelium', atomicNumber: 102, atomicMass: '(259)', category: 'actinide', electronConfig: '[Rn] 5f¹⁴ 7s²', state: 'Solid', position: 133 },
+            { symbol: 'Lr', name: 'Lawrenc.', atomicNumber: 103, atomicMass: '(262)', category: 'actinide', electronConfig: '[Rn] 5f¹⁴ 6d¹ 7s²', state: 'Solid', position: 134 },
+            { symbol: 'Rf', name: 'Rutherford.', atomicNumber: 104, atomicMass: '(267)', category: 'transition', electronConfig: '[Rn] 5f¹⁴ 6d² 7s²', state: 'Solid', position: 112 },
+            { symbol: 'Db', name: 'Dubnium', atomicNumber: 105, atomicMass: '(268)', category: 'transition', electronConfig: '[Rn] 5f¹⁴ 6d³ 7s²', state: 'Solid', position: 113 },
+            { symbol: 'Sg', name: 'Seaborg.', atomicNumber: 106, atomicMass: '(271)', category: 'transition', electronConfig: '[Rn] 5f¹⁴ 6d⁴ 7s²', state: 'Solid', position: 114 },
+            { symbol: 'Bh', name: 'Bohrium', atomicNumber: 107, atomicMass: '(270)', category: 'transition', electronConfig: '[Rn] 5f¹⁴ 6d⁵ 7s²', state: 'Solid', position: 115 },
+            { symbol: 'Hs', name: 'Hassium', atomicNumber: 108, atomicMass: '(277)', category: 'transition', electronConfig: '[Rn] 5f¹⁴ 6d⁶ 7s²', state: 'Solid', position: 116 },
+            { symbol: 'Mt', name: 'Meitner.', atomicNumber: 109, atomicMass: '(276)', category: 'transition', electronConfig: '[Rn] 5f¹⁴ 6d⁷ 7s²', state: 'Solid', position: 117 },
+            { symbol: 'Ds', name: 'Darmstadt.', atomicNumber: 110, atomicMass: '(281)', category: 'transition', electronConfig: '[Rn] 5f¹⁴ 6d⁸ 7s²', state: 'Solid', position: 118 },
+            { symbol: 'Rg', name: 'Roentgen.', atomicNumber: 111, atomicMass: '(280)', category: 'transition', electronConfig: '[Rn] 5f¹⁴ 6d⁹ 7s²', state: 'Solid', position: 119 },
+            { symbol: 'Cn', name: 'Copern.', atomicNumber: 112, atomicMass: '(285)', category: 'transition', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s²', state: 'Solid', position: 120 },
+            { symbol: 'Nh', name: 'Nihonium', atomicNumber: 113, atomicMass: '(284)', category: 'transition', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p¹', state: 'Solid', position: 121 },
+            { symbol: 'Fl', name: 'Flerov.', atomicNumber: 114, atomicMass: '(289)', category: 'transition', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p²', state: 'Solid', position: 122 },
+            { symbol: 'Mc', name: 'Moscow.', atomicNumber: 115, atomicMass: '(288)', category: 'transition', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p³', state: 'Solid', position: 123 },
+            { symbol: 'Lv', name: 'Livermor.', atomicNumber: 116, atomicMass: '(293)', category: 'transition', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁴', state: 'Solid', position: 124 },
+            { symbol: 'Ts', name: 'Tenness.', atomicNumber: 117, atomicMass: '(294)', category: 'halogen', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁵', state: 'Solid', position: 125 },
+            { symbol: 'Og', name: 'Oganes.', atomicNumber: 118, atomicMass: '(294)', category: 'noble', electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁶', state: 'Gas', position: 126 }
+        ];
+        
+        // Create the periodic table grid
+        function createPeriodicTable() {
+            const table = document.getElementById('periodicTable');
+            
+            // Create 144 cells (8 rows × 18 columns) to accommodate lanthanides and actinides
+            for (let i = 1; i <= 144; i++) {
+                const cell = document.createElement('div');
+                
+                // Find element for this position
+                const element = elements.find(el => el.position === i);
+                
+                if (element) {
+                    cell.className = `element ${element.category}`;
+                    cell.innerHTML = `
+                        <div class="atomic-number">${element.atomicNumber}</div>
+                        <div class="symbol">${element.symbol}</div>
+                        <div class="name">${element.name}</div>
+                    `;
+                    cell.onclick = () => showElementInfo(element);
+                } else {
+                    cell.className = 'element empty';
+                }
+                
+                table.appendChild(cell);
+            }
+        }
+        
+        // Show element information modal
+        function showElementInfo(element) {
+            document.getElementById('elementSymbolLarge').textContent = element.symbol;
+            document.getElementById('elementNameLarge').textContent = element.name;
+            document.getElementById('elementAtomicLarge').textContent = `Atomic Number: ${element.atomicNumber}`;
+            document.getElementById('atomicMass').textContent = element.atomicMass;
+            document.getElementById('category').textContent = capitalizeFirst(element.category.replace(/([A-Z])/g, ' $1'));
+            document.getElementById('electronConfig').textContent = element.electronConfig;
+            document.getElementById('state').textContent = element.state;
+            
+            document.getElementById('overlay').classList.add('show');
+            document.getElementById('elementInfo').classList.add('show');
+        }
+        
+        // Close element information modal
+        function closeElementInfo() {
+            document.getElementById('overlay').classList.remove('show');
+            document.getElementById('elementInfo').classList.remove('show');
+        }
+        
+        // Utility function to capitalize first letter
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+        
+        // Handle escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeElementInfo();
+            }
+        });
+        
+        // Initialize the periodic table
+        createPeriodicTable();
+    </script>
+</body>
+</html>

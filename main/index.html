@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memorise - Master Your Memory</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="js/navbar-loader.js"></script>
+    <script src="js/index.js" defer></script>
+</head>
+<body data-navbar-autoload>
+    <!-- Navigation will be loaded here by navbar-loader.js -->
+    <div id="navbar-container"></div>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">Master Your Memory</h1>
+            <p class="hero-subtitle">Unlock your brain's potential with proven memorization techniques and interactive exercises</p>
+            <div class="hero-buttons">
+                <button class="btn btn-primary" onclick="document.querySelector('.features').scrollIntoView({behavior: 'smooth'})">Get Started</button>
+                <button class="btn btn-secondary" onclick="document.querySelector('.features').scrollIntoView({behavior: 'smooth'})">Learn More</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">Interactive Learning Tools</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-atom"></i>
+                    </div>
+                    <h3>Periodic Table</h3>
+                    <p>Master chemical elements with our interactive periodic table and comprehensive memory tests. Learn symbols, names, and atomic numbers.</p>
+                    <a href="elements.html" class="btn btn-outline">Start Elements Test</a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-music"></i>
+                    </div>
+                    <h3>Musical Scales</h3>
+                    <p>Test your knowledge of musical scales, intervals, and note patterns. Perfect for musicians and music theory students.</p>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a href="musical-scales.html" class="btn btn-outline">Start Music Test</a>
+                        <a href="scales-reference.html" class="btn btn-outline">View Reference</a>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-table"></i>
+                    </div>
+                    <h3>Interactive Tables</h3>
+                    <p>Explore our interactive periodic table with detailed element information, properties, and visual learning aids.</p>
+                    <a href="periodic-table.html" class="btn btn-outline">Explore Table</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

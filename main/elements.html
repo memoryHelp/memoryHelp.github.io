@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Periodic Table Memory Test - Memorise</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/elements.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="js/navbar-loader.js"></script>
+</head>
+<body data-navbar-autoload>
+    <!-- Navigation will be loaded here by navbar-loader.js -->
+    <div id="navbar-container"></div>
+    
+    <a href="index.html" class="home-link">
+        <i class="fas fa-home"></i> Home
+    </a>
+    
+    <div class="memory-test-container">
+        <div class="test-header">
+            <h1 class="test-title">Periodic Table Memory Test</h1>
+            <p class="test-subtitle">Test your knowledge of chemical elements!</p>
+            
+            <div class="test-mode-selection" id="testModeSelection">
+                <h3>Choose Test Mode:</h3>
+                <div class="test-buttons">
+                    <button class="btn btn-primary" onclick="startTest('symbol')">Name → Symbol + Number</button>
+                    <button class="btn btn-secondary" onclick="startTest('number')">Atomic Number → Name + Symbol</button>
+                    <button class="btn btn-success" onclick="startTest('complete')">Symbol → Name + Number</button>
+                </div>
+                
+                <div class="range-selection">
+                    <h4>Select Atomic Number Range:</h4>
+                    <div class="range-inputs">
+                        <div class="range-input-group">
+                            <label class="range-label">From</label>
+                            <input type="number" class="range-input" id="rangeFrom" value="1" min="1" max="118">
+                        </div>
+                        <div class="range-divider">-</div>
+                        <div class="range-input-group">
+                            <label class="range-label">To</label>
+                            <input type="number" class="range-input" id="rangeTo" value="118" min="1" max="118">
+                        </div>
+                    </div>
+                    <div class="range-presets">
+                        <button class="preset-btn" onclick="setRange(1, 20)">First 20</button>
+                        <button class="preset-btn" onclick="setRange(1, 36)">Periods 1-4</button>
+                        <button class="preset-btn" onclick="setRange(37, 54)">Period 5</button>
+                        <button class="preset-btn" onclick="setRange(55, 86)">Period 6</button>
+                        <button class="preset-btn" onclick="setRange(87, 118)">Period 7</button>
+                        <button class="preset-btn" onclick="setRange(57, 71)">Lanthanides</button>
+                        <button class="preset-btn" onclick="setRange(89, 103)">Actinides</button>
+                        <button class="preset-btn" onclick="setRange(1, 118)">All Elements</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="progress-bar" id="progressBarContainer" style="display: none;">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+        
+        <div class="score-board" id="scoreBoard" style="display: none;">
+            <div class="score-item">
+                <span class="score-number" id="currentQuestion">1</span>
+                <span class="score-label">Question</span>
+            </div>
+            <div class="score-item">
+                <span class="score-number" id="correctAnswers">0</span>
+                <span class="score-label">Correct</span>
+            </div>
+            <div class="score-item">
+                <span class="score-number" id="totalQuestions">118</span>
+                <span class="score-label">Total</span>
+            </div>
+        </div>
+        
+        <div class="question-card" id="questionCard" style="display: none;">
+            <div class="question-number" id="questionNumber">Question 1 of 20</div>
+            <div class="atomic-number" id="atomicNumber">Atomic Number: 1</div>
+            <div class="element-symbol" id="elementSymbol">H</div>
+            <div class="question-prompt" id="questionPrompt">What is the name of this element?</div>
+            <input type="text" class="answer-input" id="answerInput" placeholder="Enter element name..." autocomplete="off">
+            <div class="dual-input-container" id="dualInputContainer" style="display: none;">
+                <div class="dual-input">
+                    <label class="input-label">Element Name</label>
+                    <input type="text" class="answer-input" id="nameInput" placeholder="Enter name..." autocomplete="off">
+                </div>
+                <div class="dual-input">
+                    <label class="input-label">Atomic Number</label>
+                    <input type="number" class="answer-input" id="numberInput" placeholder="Enter number..." autocomplete="off">
+                </div>
+            </div>
+            <div class="test-buttons">
+                <button class="btn btn-primary" onclick="submitAnswer()">Submit Answer</button>
+                <button class="btn btn-secondary" onclick="skipQuestion()">Skip</button>
+                <button class="btn btn-secondary" onclick="backToMenu()">Back to Menu</button>
+            </div>
+            <div class="feedback" id="feedback" style="display: none;"></div>
+        </div>
+        
+        <div class="results-card" id="resultsCard" style="display: none;">
+            <div class="results-title">Test Complete!</div>
+            <div class="final-score" id="finalScore">0%</div>
+            <p id="resultsMessage">Great job on completing the test!</p>
+            <div class="test-buttons">
+                <button class="btn btn-primary" onclick="restartTest()">Try Again</button>
+                <button class="btn btn-secondary" onclick="window.location.href='index.html'">Back to Home</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Periodic table elements data (all 118 elements)
+        const elements = [
+            // Period 1
+            { symbol: 'H', name: 'Hydrogen', atomicNumber: 1 },
+            { symbol: 'He', name: 'Helium', atomicNumber: 2 },
+            
+            // Period 2
+            { symbol: 'Li', name: 'Lithium', atomicNumber: 3 },
+            { symbol: 'Be', name: 'Beryllium', atomicNumber: 4 },
+            { symbol: 'B', name: 'Boron', atomicNumber: 5 },
+            { symbol: 'C', name: 'Carbon', atomicNumber: 6 },
+            { symbol: 'N', name: 'Nitrogen', atomicNumber: 7 },
+            { symbol: 'O', name: 'Oxygen', atomicNumber: 8 },
+            { symbol: 'F', name: 'Fluorine', atomicNumber: 9 },
+            { symbol: 'Ne', name: 'Neon', atomicNumber: 10 },
+            
+            // Period 3
+            { symbol: 'Na', name: 'Sodium', atomicNumber: 11 },
+            { symbol: 'Mg', name: 'Magnesium', atomicNumber: 12 },
+            { symbol: 'Al', name: 'Aluminum', atomicNumber: 13 },
+            { symbol: 'Si', name: 'Silicon', atomicNumber: 14 },
+            { symbol: 'P', name: 'Phosphorus', atomicNumber: 15 },
+            { symbol: 'S', name: 'Sulfur', atomicNumber: 16 },
+            { symbol: 'Cl', name: 'Chlorine', atomicNumber: 17 },
+            { symbol: 'Ar', name: 'Argon', atomicNumber: 18 },
+            
+            // Period 4
+            { symbol: 'K', name: 'Potassium', atomicNumber: 19 },
+            { symbol: 'Ca', name: 'Calcium', atomicNumber: 20 },
+            { symbol: 'Sc', name: 'Scandium', atomicNumber: 21 },
+            { symbol: 'Ti', name: 'Titanium', atomicNumber: 22 },
+            { symbol: 'V', name: 'Vanadium', atomicNumber: 23 },
+            { symbol: 'Cr', name: 'Chromium', atomicNumber: 24 },
+            { symbol: 'Mn', name: 'Manganese', atomicNumber: 25 },
+            { symbol: 'Fe', name: 'Iron', atomicNumber: 26 },
+            { symbol: 'Co', name: 'Cobalt', atomicNumber: 27 },
+            { symbol: 'Ni', name: 'Nickel', atomicNumber: 28 },
+            { symbol: 'Cu', name: 'Copper', atomicNumber: 29 },
+            { symbol: 'Zn', name: 'Zinc', atomicNumber: 30 },
+            { symbol: 'Ga', name: 'Gallium', atomicNumber: 31 },
+            { symbol: 'Ge', name: 'Germanium', atomicNumber: 32 },
+            { symbol: 'As', name: 'Arsenic', atomicNumber: 33 },
+            { symbol: 'Se', name: 'Selenium', atomicNumber: 34 },
+            { symbol: 'Br', name: 'Bromine', atomicNumber: 35 },
+            { symbol: 'Kr', name: 'Krypton', atomicNumber: 36 },
+            
+            // Period 5
+            { symbol: 'Rb', name: 'Rubidium', atomicNumber: 37 },
+            { symbol: 'Sr', name: 'Strontium', atomicNumber: 38 },
+            { symbol: 'Y', name: 'Yttrium', atomicNumber: 39 },
+            { symbol: 'Zr', name: 'Zirconium', atomicNumber: 40 },
+            { symbol: 'Nb', name: 'Niobium', atomicNumber: 41 },
+            { symbol: 'Mo', name: 'Molybdenum', atomicNumber: 42 },
+            { symbol: 'Tc', name: 'Technetium', atomicNumber: 43 },
+            { symbol: 'Ru', name: 'Ruthenium', atomicNumber: 44 },
+            { symbol: 'Rh', name: 'Rhodium', atomicNumber: 45 },
+            { symbol: 'Pd', name: 'Palladium', atomicNumber: 46 },
+            { symbol: 'Ag', name: 'Silver', atomicNumber: 47 },
+            { symbol: 'Cd', name: 'Cadmium', atomicNumber: 48 },
+            { symbol: 'In', name: 'Indium', atomicNumber: 49 },
+            { symbol: 'Sn', name: 'Tin', atomicNumber: 50 },
+            { symbol: 'Sb', name: 'Antimony', atomicNumber: 51 },
+            { symbol: 'Te', name: 'Tellurium', atomicNumber: 52 },
+            { symbol: 'I', name: 'Iodine', atomicNumber: 53 },
+            { symbol: 'Xe', name: 'Xenon', atomicNumber: 54 },
+            
+            // Period 6
+            { symbol: 'Cs', name: 'Cesium', atomicNumber: 55 },
+            { symbol: 'Ba', name: 'Barium', atomicNumber: 56 },
+            { symbol: 'La', name: 'Lanthanum', atomicNumber: 57 },
+            { symbol: 'Ce', name: 'Cerium', atomicNumber: 58 },
+            { symbol: 'Pr', name: 'Praseodymium', atomicNumber: 59 },
+            { symbol: 'Nd', name: 'Neodymium', atomicNumber: 60 },
+            { symbol: 'Pm', name: 'Promethium', atomicNumber: 61 },
+            { symbol: 'Sm', name: 'Samarium', atomicNumber: 62 },
+            { symbol: 'Eu', name: 'Europium', atomicNumber: 63 },
+            { symbol: 'Gd', name: 'Gadolinium', atomicNumber: 64 },
+            { symbol: 'Tb', name: 'Terbium', atomicNumber: 65 },
+            { symbol: 'Dy', name: 'Dysprosium', atomicNumber: 66 },
+            { symbol: 'Ho', name: 'Holmium', atomicNumber: 67 },
+            { symbol: 'Er', name: 'Erbium', atomicNumber: 68 },
+            { symbol: 'Tm', name: 'Thulium', atomicNumber: 69 },
+            { symbol: 'Yb', name: 'Ytterbium', atomicNumber: 70 },
+            { symbol: 'Lu', name: 'Lutetium', atomicNumber: 71 },
+            { symbol: 'Hf', name: 'Hafnium', atomicNumber: 72 },
+            { symbol: 'Ta', name: 'Tantalum', atomicNumber: 73 },
+            { symbol: 'W', name: 'Tungsten', atomicNumber: 74 },
+            { symbol: 'Re', name: 'Rhenium', atomicNumber: 75 },
+            { symbol: 'Os', name: 'Osmium', atomicNumber: 76 },
+            { symbol: 'Ir', name: 'Iridium', atomicNumber: 77 },
+            { symbol: 'Pt', name: 'Platinum', atomicNumber: 78 },
+            { symbol: 'Au', name: 'Gold', atomicNumber: 79 },
+            { symbol: 'Hg', name: 'Mercury', atomicNumber: 80 },
+            { symbol: 'Tl', name: 'Thallium', atomicNumber: 81 },
+            { symbol: 'Pb', name: 'Lead', atomicNumber: 82 },
+            { symbol: 'Bi', name: 'Bismuth', atomicNumber: 83 },
+            { symbol: 'Po', name: 'Polonium', atomicNumber: 84 },
+            { symbol: 'At', name: 'Astatine', atomicNumber: 85 },
+            { symbol: 'Rn', name: 'Radon', atomicNumber: 86 },
+            
+            // Period 7
+            { symbol: 'Fr', name: 'Francium', atomicNumber: 87 },
+            { symbol: 'Ra', name: 'Radium', atomicNumber: 88 },
+            { symbol: 'Ac', name: 'Actinium', atomicNumber: 89 },
+            { symbol: 'Th', name: 'Thorium', atomicNumber: 90 },
+            { symbol: 'Pa', name: 'Protactinium', atomicNumber: 91 },
+            { symbol: 'U', name: 'Uranium', atomicNumber: 92 },
+            { symbol: 'Np', name: 'Neptunium', atomicNumber: 93 },
+            { symbol: 'Pu', name: 'Plutonium', atomicNumber: 94 },
+            { symbol: 'Am', name: 'Americium', atomicNumber: 95 },
+            { symbol: 'Cm', name: 'Curium', atomicNumber: 96 },
+            { symbol: 'Bk', name: 'Berkelium', atomicNumber: 97 },
+            { symbol: 'Cf', name: 'Californium', atomicNumber: 98 },
+            { symbol: 'Es', name: 'Einsteinium', atomicNumber: 99 },
+            { symbol: 'Fm', name: 'Fermium', atomicNumber: 100 },
+            { symbol: 'Md', name: 'Mendelevium', atomicNumber: 101 },
+            { symbol: 'No', name: 'Nobelium', atomicNumber: 102 },
+            { symbol: 'Lr', name: 'Lawrencium', atomicNumber: 103 },
+            { symbol: 'Rf', name: 'Rutherfordium', atomicNumber: 104 },
+            { symbol: 'Db', name: 'Dubnium', atomicNumber: 105 },
+            { symbol: 'Sg', name: 'Seaborgium', atomicNumber: 106 },
+            { symbol: 'Bh', name: 'Bohrium', atomicNumber: 107 },
+            { symbol: 'Hs', name: 'Hassium', atomicNumber: 108 },
+            { symbol: 'Mt', name: 'Meitnerium', atomicNumber: 109 },
+            { symbol: 'Ds', name: 'Darmstadtium', atomicNumber: 110 },
+            { symbol: 'Rg', name: 'Roentgenium', atomicNumber: 111 },
+            { symbol: 'Cn', name: 'Copernicium', atomicNumber: 112 },
+            { symbol: 'Nh', name: 'Nihonium', atomicNumber: 113 },
+            { symbol: 'Fl', name: 'Flerovium', atomicNumber: 114 },
+            { symbol: 'Mc', name: 'Moscovium', atomicNumber: 115 },
+            { symbol: 'Lv', name: 'Livermorium', atomicNumber: 116 },
+            { symbol: 'Ts', name: 'Tennessine', atomicNumber: 117 },
+            { symbol: 'Og', name: 'Oganesson', atomicNumber: 118 }
+        ];
+        
+        let currentQuestionIndex = 0;
+        let correctAnswers = 0;
+        let testQuestions = [];
+        let answered = false;
+        let testMode = 'symbol'; // 'symbol', 'number', or 'complete'
+        
+        // Start test with selected mode
+        function startTest(mode) {
+            testMode = mode;
+            document.getElementById('testModeSelection').style.display = 'none';
+            document.getElementById('progressBarContainer').style.display = 'block';
+            document.getElementById('scoreBoard').style.display = 'flex';
+            document.getElementById('questionCard').style.display = 'block';
+            initializeTest();
+        }
+        
+        // Set range preset values
+        function setRange(from, to) {
+            document.getElementById('rangeFrom').value = from;
+            document.getElementById('rangeTo').value = to;
+        }
+        
+        // Validate range inputs
+        function validateRange() {
+            const fromInput = document.getElementById('rangeFrom');
+            const toInput = document.getElementById('rangeTo');
+            
+            let from = parseInt(fromInput.value);
+            let to = parseInt(toInput.value);
+            
+            // Ensure values are within bounds
+            if (from < 1) {
+                from = 1;
+                fromInput.value = 1;
+            }
+            if (from > 118) {
+                from = 118;
+                fromInput.value = 118;
+            }
+            if (to < 1) {
+                to = 1;
+                toInput.value = 1;
+            }
+            if (to > 118) {
+                to = 118;
+                toInput.value = 118;
+            }
+            
+            // Ensure from <= to
+            if (from > to) {
+                toInput.value = from;
+            }
+        }
+        
+        // Back to menu
+        function backToMenu() {
+            document.getElementById('testModeSelection').style.display = 'block';
+            document.getElementById('progressBarContainer').style.display = 'none';
+            document.getElementById('scoreBoard').style.display = 'none';
+            document.getElementById('questionCard').style.display = 'none';
+            document.getElementById('resultsCard').style.display = 'none';
+        }
+        
+        // Initialize test
+        function initializeTest() {
+            const rangeFrom = parseInt(document.getElementById('rangeFrom').value) || 1;
+            const rangeTo = parseInt(document.getElementById('rangeTo').value) || 118;
+            
+            // Validate range
+            if (rangeFrom > rangeTo) {
+                alert('Invalid range: "From" value cannot be greater than "To" value');
+                backToMenu();
+                return;
+            }
+            
+            if (rangeFrom < 1 || rangeTo > 118) {
+                alert('Range must be between 1 and 118');
+                backToMenu();
+                return;
+            }
+            
+            // Filter elements by atomic number range
+            const filteredElements = elements.filter(element => 
+                element.atomicNumber >= rangeFrom && element.atomicNumber <= rangeTo
+            );
+            
+            if (filteredElements.length === 0) {
+                alert('No elements found in the selected range');
+                backToMenu();
+                return;
+            }
+            
+            testQuestions = [...filteredElements].sort(() => Math.random() - 0.5);
+            currentQuestionIndex = 0;
+            correctAnswers = 0;
+            answered = false;
+            
+            // Update total questions display
+            document.getElementById('totalQuestions').textContent = testQuestions.length;
+            
+            updateDisplay();
+            showQuestion();
+        }
+        
+        // Show current question
+        function showQuestion() {
+            if (currentQuestionIndex >= testQuestions.length) {
+                showResults();
+                return;
+            }
+            
+            const element = testQuestions[currentQuestionIndex];
+            document.getElementById('questionNumber').textContent = `Question ${currentQuestionIndex + 1} of ${testQuestions.length}`;
+            
+            // Hide all input containers first
+            document.getElementById('answerInput').style.display = 'none';
+            document.getElementById('dualInputContainer').style.display = 'none';
+            
+            if (testMode === 'symbol') {
+                // Show element name, ask for symbol and atomic number
+                document.getElementById('atomicNumber').style.display = 'none';
+                document.getElementById('elementSymbol').textContent = element.name;
+                document.getElementById('elementSymbol').style.display = 'block';
+                document.getElementById('questionPrompt').textContent = 'What is the symbol and atomic number of this element?';
+                document.getElementById('dualInputContainer').style.display = 'flex';
+                document.getElementById('nameInput').value = '';
+                document.getElementById('numberInput').value = '';
+                document.getElementById('nameInput').focus();
+                
+                // Update labels for symbol mode
+                document.querySelector('#dualInputContainer .dual-input:first-child .input-label').textContent = 'Symbol';
+                document.querySelector('#dualInputContainer .dual-input:last-child .input-label').textContent = 'Atomic Number';
+                document.getElementById('nameInput').setAttribute('type', 'text');
+                document.getElementById('nameInput').setAttribute('placeholder', 'Enter symbol...');
+                document.getElementById('numberInput').setAttribute('type', 'number');
+                document.getElementById('numberInput').setAttribute('placeholder', 'Enter number...');
+            } else if (testMode === 'number') {
+                // Show only atomic number, ask for name and symbol
+                document.getElementById('atomicNumber').textContent = `Atomic Number: ${element.atomicNumber}`;
+                document.getElementById('atomicNumber').style.display = 'block';
+                document.getElementById('elementSymbol').style.display = 'none';
+                document.getElementById('questionPrompt').textContent = 'What is the name and symbol of this element?';
+                document.getElementById('dualInputContainer').style.display = 'flex';
+                document.getElementById('nameInput').value = '';
+                document.getElementById('numberInput').value = '';
+                document.getElementById('nameInput').focus();
+                
+                // Update labels for number mode
+                document.querySelector('#dualInputContainer .dual-input:first-child .input-label').textContent = 'Element Name';
+                document.querySelector('#dualInputContainer .dual-input:last-child .input-label').textContent = 'Symbol';
+                document.getElementById('nameInput').setAttribute('type', 'text');
+                document.getElementById('nameInput').setAttribute('placeholder', 'Enter name...');
+                document.getElementById('numberInput').setAttribute('type', 'text');
+                document.getElementById('numberInput').setAttribute('placeholder', 'Enter symbol...');
+            } else if (testMode === 'complete') {
+                // Show only symbol, ask for name and atomic number
+                document.getElementById('atomicNumber').style.display = 'none';
+                document.getElementById('elementSymbol').textContent = element.symbol;
+                document.getElementById('elementSymbol').style.display = 'block';
+                document.getElementById('questionPrompt').textContent = 'What is the name and atomic number of this element?';
+                document.getElementById('dualInputContainer').style.display = 'flex';
+                document.getElementById('nameInput').value = '';
+                document.getElementById('numberInput').value = '';
+                document.getElementById('nameInput').focus();
+                
+                // Reset labels for complete mode
+                document.querySelector('#dualInputContainer .dual-input:first-child .input-label').textContent = 'Element Name';
+                document.querySelector('#dualInputContainer .dual-input:last-child .input-label').textContent = 'Atomic Number';
+                document.getElementById('nameInput').setAttribute('type', 'text');
+                document.getElementById('nameInput').setAttribute('placeholder', 'Enter name...');
+                document.getElementById('numberInput').setAttribute('type', 'number');
+                document.getElementById('numberInput').setAttribute('placeholder', 'Enter number...');
+            }
+            
+            document.getElementById('feedback').style.display = 'none';
+            answered = false;
+            
+            updateDisplay();
+        }
+        
+        // Submit answer
+        function submitAnswer() {
+            if (answered) return;
+            
+            const feedback = document.getElementById('feedback');
+            const element = testQuestions[currentQuestionIndex];
+            answered = true;
+            let isCorrect = false;
+            
+            if (testMode === 'complete') {
+                // Check both name and atomic number
+                const userName = document.getElementById('nameInput').value.trim().toLowerCase();
+                const userNumber = parseInt(document.getElementById('numberInput').value.trim());
+                const correctName = element.name.toLowerCase();
+                const correctNumber = element.atomicNumber;
+                
+                const nameCorrect = userName === correctName;
+                const numberCorrect = userNumber === correctNumber;
+                
+                if (nameCorrect && numberCorrect) {
+                    correctAnswers++;
+                    isCorrect = true;
+                    feedback.className = 'feedback correct';
+                    feedback.innerHTML = `<i class="fas fa-check-circle"></i> Perfect! ${element.name}, Atomic Number ${element.atomicNumber}`;
+                } else if (nameCorrect && !numberCorrect) {
+                    feedback.className = 'feedback incorrect';
+                    feedback.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Name correct, but atomic number is ${element.atomicNumber}`;
+                } else if (!nameCorrect && numberCorrect) {
+                    feedback.className = 'feedback incorrect';
+                    feedback.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Number correct, but the name is ${element.name}`;
+                } else {
+                    feedback.className = 'feedback incorrect';
+                    feedback.innerHTML = `<i class="fas fa-times-circle"></i> Incorrect. The answer is ${element.name}, Atomic Number ${element.atomicNumber}`;
+                }
+            } else if (testMode === 'number') {
+                // Check both name and symbol for number mode
+                const userName = document.getElementById('nameInput').value.trim().toLowerCase();
+                const userSymbol = document.getElementById('numberInput').value.trim();
+                const correctName = element.name.toLowerCase();
+                const correctSymbol = element.symbol;
+                
+                const nameCorrect = userName === correctName;
+                const symbolCorrect = userSymbol === correctSymbol;
+                
+                if (nameCorrect && symbolCorrect) {
+                    correctAnswers++;
+                    isCorrect = true;
+                    feedback.className = 'feedback correct';
+                    feedback.innerHTML = `<i class="fas fa-check-circle"></i> Perfect! ${element.name}, Symbol ${element.symbol}`;
+                } else if (nameCorrect && !symbolCorrect) {
+                    feedback.className = 'feedback incorrect';
+                    feedback.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Name correct, but symbol is ${element.symbol}`;
+                } else if (!nameCorrect && symbolCorrect) {
+                    feedback.className = 'feedback incorrect';
+                    feedback.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Symbol correct, but the name is ${element.name}`;
+                } else {
+                    feedback.className = 'feedback incorrect';
+                    feedback.innerHTML = `<i class="fas fa-times-circle"></i> Incorrect. The answer is ${element.name}, Symbol ${element.symbol}`;
+                }
+            } else if (testMode === 'symbol') {
+                // Check both symbol and atomic number for symbol mode
+                const userSymbol = document.getElementById('nameInput').value.trim();
+                const userNumber = parseInt(document.getElementById('numberInput').value.trim());
+                const correctSymbol = element.symbol;
+                const correctNumber = element.atomicNumber;
+                
+                const symbolCorrect = userSymbol === correctSymbol;
+                const numberCorrect = userNumber === correctNumber;
+                
+                if (symbolCorrect && numberCorrect) {
+                    correctAnswers++;
+                    isCorrect = true;
+                    feedback.className = 'feedback correct';
+                    feedback.innerHTML = `<i class="fas fa-check-circle"></i> Perfect! Symbol ${element.symbol}, Atomic Number ${element.atomicNumber}`;
+                } else if (symbolCorrect && !numberCorrect) {
+                    feedback.className = 'feedback incorrect';
+                    feedback.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Symbol correct, but atomic number is ${element.atomicNumber}`;
+                } else if (!symbolCorrect && numberCorrect) {
+                    feedback.className = 'feedback incorrect';
+                    feedback.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Number correct, but the symbol is ${element.symbol}`;
+                } else {
+                    feedback.className = 'feedback incorrect';
+                    feedback.innerHTML = `<i class="fas fa-times-circle"></i> Incorrect. The answer is Symbol ${element.symbol}, Atomic Number ${element.atomicNumber}`;
+                }
+            } else {
+                // This should not happen with current test modes
+                const userAnswer = document.getElementById('answerInput').value.trim().toLowerCase();
+                const correctAnswer = element.name.toLowerCase();
+                
+                if (userAnswer === correctAnswer) {
+                    correctAnswers++;
+                    isCorrect = true;
+                    feedback.className = 'feedback correct';
+                    feedback.innerHTML = `<i class="fas fa-check-circle"></i> Correct! The answer is ${element.name}`;
+                } else {
+                    feedback.className = 'feedback incorrect';
+                    feedback.innerHTML = `<i class="fas fa-times-circle"></i> Incorrect. The correct answer is ${element.name}`;
+                }
+            }
+            
+            feedback.style.display = 'block';
+            updateDisplay();
+            
+            setTimeout(() => {
+                currentQuestionIndex++;
+                showQuestion();
+            }, 2000);
+        }
+        
+        // Skip question
+        function skipQuestion() {
+            if (answered) return;
+            
+            const feedback = document.getElementById('feedback');
+            const element = testQuestions[currentQuestionIndex];
+            
+            if (testMode === 'complete') {
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `<i class="fas fa-arrow-right"></i> Skipped. The correct answer is ${element.name}, Atomic Number ${element.atomicNumber}`;
+            } else if (testMode === 'number') {
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `<i class="fas fa-arrow-right"></i> Skipped. The correct answer is ${element.name}, Symbol ${element.symbol}`;
+            } else if (testMode === 'symbol') {
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `<i class="fas fa-arrow-right"></i> Skipped. The correct answer is Symbol ${element.symbol}, Atomic Number ${element.atomicNumber}`;
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `<i class="fas fa-arrow-right"></i> Skipped. The correct answer is ${element.name}`;
+            }
+            
+            feedback.style.display = 'block';
+            answered = true;
+            
+            setTimeout(() => {
+                currentQuestionIndex++;
+                showQuestion();
+            }, 2000);
+        }
+        
+        // Update display elements
+        function updateDisplay() {
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('correctAnswers').textContent = correctAnswers;
+            
+            const progress = ((currentQuestionIndex + 1) / testQuestions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+        
+        // Show results
+        function showResults() {
+            const percentage = Math.round((correctAnswers / testQuestions.length) * 100);
+            
+            document.getElementById('questionCard').style.display = 'none';
+            document.getElementById('resultsCard').style.display = 'block';
+            document.getElementById('finalScore').textContent = percentage + '%';
+            
+            const modeText = testMode === 'symbol' ? 'Name → Symbol + Number' : 
+                           testMode === 'number' ? 'Atomic Number → Name + Symbol' : 
+                           'Symbol → Name + Number';
+            
+            let message = '';
+            if (percentage >= 90) {
+                message = `Outstanding! You have excellent knowledge of the periodic table (${modeText} mode, elements ${document.getElementById('rangeFrom').value}-${document.getElementById('rangeTo').value})!`;
+            } else if (percentage >= 70) {
+                message = `Great job! You have a good grasp of the periodic table (${modeText} mode, elements ${document.getElementById('rangeFrom').value}-${document.getElementById('rangeTo').value}).`;
+            } else if (percentage >= 50) {
+                message = `Not bad! Keep studying to improve your knowledge (${modeText} mode, elements ${document.getElementById('rangeFrom').value}-${document.getElementById('rangeTo').value}).`;
+            } else {
+                message = `Keep practicing! The periodic table takes time to master (${modeText} mode, elements ${document.getElementById('rangeFrom').value}-${document.getElementById('rangeTo').value}).`;
+            }
+            
+            document.getElementById('resultsMessage').textContent = message;
+        }
+        
+        // Restart test
+        function restartTest() {
+            backToMenu();
+        }
+        
+        // Handle Enter key
+        document.getElementById('answerInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !answered) {
+                submitAnswer();
+            }
+        });
+        
+        // Handle Enter key for dual input mode
+        document.getElementById('nameInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !answered) {
+                document.getElementById('numberInput').focus();
+            }
+        });
+        
+        document.getElementById('numberInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !answered) {
+                submitAnswer();
+            }
+        });
+        
+        // Add event listeners for range validation
+        document.getElementById('rangeFrom').addEventListener('change', validateRange);
+        document.getElementById('rangeTo').addEventListener('change', validateRange);
+        document.getElementById('rangeFrom').addEventListener('input', validateRange);
+        document.getElementById('rangeTo').addEventListener('input', validateRange);
+        
+        // Initialize test on page load
+        // Don't auto-start test anymore, wait for user selection
+    </script>
+</body>
+</html>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Musical Scales Memory Test - Memorise</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/musical-scales.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="js/navbar-loader.js"></script>
+</head>
+<body data-navbar-autoload>
+    <!-- Navigation will be loaded here by navbar-loader.js -->
+    <div id="navbar-container"></div>
+    
+    <a href="index.html" class="home-link">
+        <i class="fas fa-home"></i> Home
+    </a>
+    
+    <div class="music-test-container">
+        <div class="test-header">
+            <h1 class="test-title">Musical Scales Memory Test</h1>
+            <p class="test-subtitle">Test your knowledge of musical scales and their notes!</p>
+            
+            <div class="test-mode-selection" id="testModeSelection">
+                <div class="mode-card">
+                    <h3>Choose Your Test Mode</h3>
+                    <div class="mode-buttons">
+                        <button class="mode-btn" onclick="startTest('notes')">
+                            <i class="fas fa-music"></i>
+                            <span>Scale to Notes</span>
+                            <small>Given a scale name, identify its notes</small>
+                        </button>
+                        <button class="mode-btn" onclick="startTest('scale')">
+                            <i class="fas fa-musical-note"></i>
+                            <span>Notes to Scale</span>
+                            <small>Given notes, identify the scale</small>
+                        </button>
+                        <button class="mode-btn" onclick="startTest('intervals')">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Scale Intervals</span>
+                            <small>Identify the interval pattern of scales</small>
+                        </button>
+                    </div>
+                    
+                    <div class="scale-options">
+                        <h4>Scale Categories</h4>
+                        <div class="option-group">
+                            <label class="option-checkbox">
+                                <input type="checkbox" id="major" checked>
+                                <span class="checkmark"></span>
+                                Major Scales
+                            </label>
+                            <label class="option-checkbox">
+                                <input type="checkbox" id="minor" checked>
+                                <span class="checkmark"></span>
+                                Minor Scales
+                            </label>
+                            <label class="option-checkbox">
+                                <input type="checkbox" id="modes">
+                                <span class="checkmark"></span>
+                                Church Modes
+                            </label>
+                            <label class="option-checkbox">
+                                <input type="checkbox" id="pentatonic">
+                                <span class="checkmark"></span>
+                                Pentatonic Scales
+                            </label>
+                            <label class="option-checkbox">
+                                <input type="checkbox" id="blues">
+                                <span class="checkmark"></span>
+                                Blues Scales
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="progress-bar-container" id="progressBarContainer" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">Question 1 of 20</div>
+            </div>
+        </div>
+        
+        <div class="score-board" id="scoreBoard" style="display: none;">
+            <div class="score-item">
+                <span class="score-label">Correct</span>
+                <span class="score-value" id="correctCount">0</span>
+            </div>
+            <div class="score-item">
+                <span class="score-label">Question</span>
+                <span class="score-value" id="currentQuestion">1</span>
+            </div>
+            <div class="score-item">
+                <span class="score-label">Total</span>
+                <span class="score-value" id="totalQuestions">20</span>
+            </div>
+        </div>
+        
+        <div class="question-card" id="questionCard" style="display: none;">
+            <div class="question-number" id="questionNumber">Question 1 of 20</div>
+            <div class="scale-display" id="scaleDisplay">C Major</div>
+            <div class="question-prompt" id="questionPrompt">What are the notes in this scale?</div>
+            
+            <div class="answer-section" id="answerSection">
+                <input type="text" class="answer-input" id="answerInput" placeholder="Enter notes separated by commas..." autocomplete="off">
+                
+                <div class="notes-selection" id="notesSelection" style="display: none;">
+                    <div class="notes-grid">
+                        <button class="note-btn" data-note="C">C</button>
+                        <button class="note-btn" data-note="C#">C#</button>
+                        <button class="note-btn" data-note="D">D</button>
+                        <button class="note-btn" data-note="D#">D#</button>
+                        <button class="note-btn" data-note="E">E</button>
+                        <button class="note-btn" data-note="F">F</button>
+                        <button class="note-btn" data-note="F#">F#</button>
+                        <button class="note-btn" data-note="G">G</button>
+                        <button class="note-btn" data-note="G#">G#</button>
+                        <button class="note-btn" data-note="A">A</button>
+                        <button class="note-btn" data-note="A#">A#</button>
+                        <button class="note-btn" data-note="B">B</button>
+                    </div>
+                    <div class="selected-notes" id="selectedNotes"></div>
+                </div>
+                
+                <div class="interval-selection" id="intervalSelection" style="display: none;">
+                    <div class="interval-pattern" id="intervalPattern">
+                        Select the interval pattern (W = Whole step, H = Half step):
+                    </div>
+                    <input type="text" class="interval-input" id="intervalInput" placeholder="e.g., W-W-H-W-W-W-H" autocomplete="off">
+                </div>
+            </div>
+            
+            <div class="test-buttons">
+                <button class="btn btn-primary" onclick="submitAnswer()">Submit</button>
+                <button class="btn btn-secondary" onclick="skipQuestion()">Skip</button>
+                <button class="btn btn-outline" onclick="backToMenu()">Back to Menu</button>
+            </div>
+            <div class="feedback" id="feedback" style="display: none;"></div>
+        </div>
+        
+        <div class="results-card" id="resultsCard" style="display: none;">
+            <div class="results-title">Test Complete!</div>
+            <div class="final-score" id="finalScore">0%</div>
+            <p id="resultsMessage">Great job on completing the musical scales test!</p>
+            <div class="test-buttons">
+                <button class="btn btn-primary" onclick="restartTest()">Take Another Test</button>
+                <button class="btn btn-outline" onclick="backToMenu()">Back to Menu</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Musical scales data
+        const scales = {
+            major: [
+                { name: 'C Major', notes: ['C', 'D', 'E', 'F', 'G', 'A', 'B'], intervals: 'W-W-H-W-W-W-H' },
+                { name: 'G Major', notes: ['G', 'A', 'B', 'C', 'D', 'E', 'F#'], intervals: 'W-W-H-W-W-W-H' },
+                { name: 'D Major', notes: ['D', 'E', 'F#', 'G', 'A', 'B', 'C#'], intervals: 'W-W-H-W-W-W-H' },
+                { name: 'A Major', notes: ['A', 'B', 'C#', 'D', 'E', 'F#', 'G#'], intervals: 'W-W-H-W-W-W-H' },
+                { name: 'E Major', notes: ['E', 'F#', 'G#', 'A', 'B', 'C#', 'D#'], intervals: 'W-W-H-W-W-W-H' },
+                { name: 'B Major', notes: ['B', 'C#', 'D#', 'E', 'F#', 'G#', 'A#'], intervals: 'W-W-H-W-W-W-H' },
+                { name: 'F# Major', notes: ['F#', 'G#', 'A#', 'B', 'C#', 'D#', 'E#'], intervals: 'W-W-H-W-W-W-H' },
+                { name: 'F Major', notes: ['F', 'G', 'A', 'Bb', 'C', 'D', 'E'], intervals: 'W-W-H-W-W-W-H' },
+                { name: 'Bb Major', notes: ['Bb', 'C', 'D', 'Eb', 'F', 'G', 'A'], intervals: 'W-W-H-W-W-W-H' },
+                { name: 'Eb Major', notes: ['Eb', 'F', 'G', 'Ab', 'Bb', 'C', 'D'], intervals: 'W-W-H-W-W-W-H' },
+                { name: 'Ab Major', notes: ['Ab', 'Bb', 'C', 'Db', 'Eb', 'F', 'G'], intervals: 'W-W-H-W-W-W-H' },
+                { name: 'Db Major', notes: ['Db', 'Eb', 'F', 'Gb', 'Ab', 'Bb', 'C'], intervals: 'W-W-H-W-W-W-H' }
+            ],
+            minor: [
+                { name: 'A Minor', notes: ['A', 'B', 'C', 'D', 'E', 'F', 'G'], intervals: 'W-H-W-W-H-W-W' },
+                { name: 'E Minor', notes: ['E', 'F#', 'G', 'A', 'B', 'C', 'D'], intervals: 'W-H-W-W-H-W-W' },
+                { name: 'B Minor', notes: ['B', 'C#', 'D', 'E', 'F#', 'G', 'A'], intervals: 'W-H-W-W-H-W-W' },
+                { name: 'F# Minor', notes: ['F#', 'G#', 'A', 'B', 'C#', 'D', 'E'], intervals: 'W-H-W-W-H-W-W' },
+                { name: 'C# Minor', notes: ['C#', 'D#', 'E', 'F#', 'G#', 'A', 'B'], intervals: 'W-H-W-W-H-W-W' },
+                { name: 'G# Minor', notes: ['G#', 'A#', 'B', 'C#', 'D#', 'E', 'F#'], intervals: 'W-H-W-W-H-W-W' },
+                { name: 'D# Minor', notes: ['D#', 'E#', 'F#', 'G#', 'A#', 'B', 'C#'], intervals: 'W-H-W-W-H-W-W' },
+                { name: 'D Minor', notes: ['D', 'E', 'F', 'G', 'A', 'Bb', 'C'], intervals: 'W-H-W-W-H-W-W' },
+                { name: 'G Minor', notes: ['G', 'A', 'Bb', 'C', 'D', 'Eb', 'F'], intervals: 'W-H-W-W-H-W-W' },
+                { name: 'C Minor', notes: ['C', 'D', 'Eb', 'F', 'G', 'Ab', 'Bb'], intervals: 'W-H-W-W-H-W-W' },
+                { name: 'F Minor', notes: ['F', 'G', 'Ab', 'Bb', 'C', 'Db', 'Eb'], intervals: 'W-H-W-W-H-W-W' },
+                { name: 'Bb Minor', notes: ['Bb', 'C', 'Db', 'Eb', 'F', 'Gb', 'Ab'], intervals: 'W-H-W-W-H-W-W' }
+            ],
+            modes: [
+                { name: 'C Ionian', notes: ['C', 'D', 'E', 'F', 'G', 'A', 'B'], intervals: 'W-W-H-W-W-W-H' },
+                { name: 'D Dorian', notes: ['D', 'E', 'F', 'G', 'A', 'B', 'C'], intervals: 'W-H-W-W-W-H-W' },
+                { name: 'E Phrygian', notes: ['E', 'F', 'G', 'A', 'B', 'C', 'D'], intervals: 'H-W-W-W-H-W-W' },
+                { name: 'F Lydian', notes: ['F', 'G', 'A', 'B', 'C', 'D', 'E'], intervals: 'W-W-W-H-W-W-H' },
+                { name: 'G Mixolydian', notes: ['G', 'A', 'B', 'C', 'D', 'E', 'F'], intervals: 'W-W-H-W-W-H-W' },
+                { name: 'A Aeolian', notes: ['A', 'B', 'C', 'D', 'E', 'F', 'G'], intervals: 'W-H-W-W-H-W-W' },
+                { name: 'B Locrian', notes: ['B', 'C', 'D', 'E', 'F', 'G', 'A'], intervals: 'H-W-W-H-W-W-W' }
+            ],
+            pentatonic: [
+                { name: 'C Major Pentatonic', notes: ['C', 'D', 'E', 'G', 'A'], intervals: 'W-W-W+H-W-W+H' },
+                { name: 'A Minor Pentatonic', notes: ['A', 'C', 'D', 'E', 'G'], intervals: 'W+H-W-W-W+H-W' },
+                { name: 'G Major Pentatonic', notes: ['G', 'A', 'B', 'D', 'E'], intervals: 'W-W-W+H-W-W+H' },
+                { name: 'E Minor Pentatonic', notes: ['E', 'G', 'A', 'B', 'D'], intervals: 'W+H-W-W-W+H-W' },
+                { name: 'D Major Pentatonic', notes: ['D', 'E', 'F#', 'A', 'B'], intervals: 'W-W-W+H-W-W+H' },
+                { name: 'B Minor Pentatonic', notes: ['B', 'D', 'E', 'F#', 'A'], intervals: 'W+H-W-W-W+H-W' }
+            ],
+            blues: [
+                { name: 'C Blues', notes: ['C', 'Eb', 'F', 'F#', 'G', 'Bb'], intervals: 'W+H-W-H-H-W+H' },
+                { name: 'A Blues', notes: ['A', 'C', 'D', 'D#', 'E', 'G'], intervals: 'W+H-W-H-H-W+H' },
+                { name: 'E Blues', notes: ['E', 'G', 'A', 'A#', 'B', 'D'], intervals: 'W+H-W-H-H-W+H' },
+                { name: 'G Blues', notes: ['G', 'Bb', 'C', 'C#', 'D', 'F'], intervals: 'W+H-W-H-H-W+H' },
+                { name: 'D Blues', notes: ['D', 'F', 'G', 'G#', 'A', 'C'], intervals: 'W+H-W-H-H-W+H' },
+                { name: 'B Blues', notes: ['B', 'D', 'E', 'F', 'F#', 'A'], intervals: 'W+H-W-H-H-W+H' }
+            ]
+        };
+
+        let currentQuestionIndex = 0;
+        let correctAnswers = 0;
+        let testQuestions = [];
+        let answered = false;
+        let testMode = 'notes';
+        let selectedNotes = [];
+
+        // Start test with selected mode
+        function startTest(mode) {
+            testMode = mode;
+            document.getElementById('testModeSelection').style.display = 'none';
+            document.getElementById('progressBarContainer').style.display = 'block';
+            document.getElementById('scoreBoard').style.display = 'flex';
+            document.getElementById('questionCard').style.display = 'block';
+            initializeTest();
+        }
+
+        // Get selected scale categories
+        function getSelectedCategories() {
+            const categories = [];
+            if (document.getElementById('major').checked) categories.push('major');
+            if (document.getElementById('minor').checked) categories.push('minor');
+            if (document.getElementById('modes').checked) categories.push('modes');
+            if (document.getElementById('pentatonic').checked) categories.push('pentatonic');
+            if (document.getElementById('blues').checked) categories.push('blues');
+            return categories.length > 0 ? categories : ['major', 'minor'];
+        }
+
+        // Initialize test
+        function initializeTest() {
+            const selectedCategories = getSelectedCategories();
+            let allScales = [];
+            
+            selectedCategories.forEach(category => {
+                allScales = allScales.concat(scales[category]);
+            });
+
+            if (allScales.length === 0) {
+                alert('Please select at least one scale category');
+                backToMenu();
+                return;
+            }
+
+            testQuestions = [...allScales].sort(() => Math.random() - 0.5).slice(0, 20);
+            currentQuestionIndex = 0;
+            correctAnswers = 0;
+            answered = false;
+
+            document.getElementById('totalQuestions').textContent = testQuestions.length;
+            updateDisplay();
+            showQuestion();
+        }
+
+        // Show current question
+        function showQuestion() {
+            if (currentQuestionIndex >= testQuestions.length) {
+                showResults();
+                return;
+            }
+
+            const scale = testQuestions[currentQuestionIndex];
+            document.getElementById('questionNumber').textContent = `Question ${currentQuestionIndex + 1} of ${testQuestions.length}`;
+
+            // Hide all input sections first
+            document.getElementById('answerInput').style.display = 'none';
+            document.getElementById('notesSelection').style.display = 'none';
+            document.getElementById('intervalSelection').style.display = 'none';
+
+            if (testMode === 'notes') {
+                // Show scale name, ask for notes
+                document.getElementById('scaleDisplay').textContent = scale.name;
+                document.getElementById('questionPrompt').textContent = 'What are the notes in this scale?';
+                document.getElementById('answerInput').style.display = 'block';
+                document.getElementById('answerInput').placeholder = 'Enter notes separated by commas (e.g., C, D, E, F, G, A, B)';
+                document.getElementById('answerInput').value = '';
+                document.getElementById('answerInput').focus();
+            } else if (testMode === 'scale') {
+                // Show notes, ask for scale name
+                document.getElementById('scaleDisplay').textContent = scale.notes.join(', ');
+                document.getElementById('questionPrompt').textContent = 'What scale is this?';
+                document.getElementById('answerInput').style.display = 'block';
+                document.getElementById('answerInput').placeholder = 'Enter scale name (e.g., C Major)';
+                document.getElementById('answerInput').value = '';
+                document.getElementById('answerInput').focus();
+            } else if (testMode === 'intervals') {
+                // Show scale name, ask for intervals
+                document.getElementById('scaleDisplay').textContent = scale.name;
+                document.getElementById('questionPrompt').textContent = 'What is the interval pattern of this scale?';
+                document.getElementById('intervalSelection').style.display = 'block';
+                document.getElementById('intervalInput').value = '';
+                document.getElementById('intervalInput').focus();
+            }
+
+            document.getElementById('feedback').style.display = 'none';
+            answered = false;
+            updateDisplay();
+        }
+
+        // Submit answer
+        function submitAnswer() {
+            if (answered) return;
+
+            const scale = testQuestions[currentQuestionIndex];
+            const feedback = document.getElementById('feedback');
+            answered = true;
+            let isCorrect = false;
+            let userAnswer = '';
+            let correctAnswer = '';
+
+            if (testMode === 'notes') {
+                userAnswer = document.getElementById('answerInput').value.trim();
+                correctAnswer = scale.notes.join(', ');
+                
+                // Normalize and compare notes
+                const userNotes = userAnswer.split(',').map(note => note.trim().replace(/♯/g, '#').replace(/♭/g, 'b'));
+                const correctNotes = scale.notes.map(note => note.replace(/♯/g, '#').replace(/♭/g, 'b'));
+                
+                isCorrect = userNotes.length === correctNotes.length && 
+                           userNotes.every(note => correctNotes.includes(note));
+            } else if (testMode === 'scale') {
+                userAnswer = document.getElementById('answerInput').value.trim();
+                correctAnswer = scale.name;
+                isCorrect = userAnswer.toLowerCase() === scale.name.toLowerCase();
+            } else if (testMode === 'intervals') {
+                userAnswer = document.getElementById('intervalInput').value.trim();
+                correctAnswer = scale.intervals;
+                isCorrect = userAnswer.toLowerCase().replace(/\s/g, '') === scale.intervals.toLowerCase().replace(/\s/g, '');
+            }
+
+            if (isCorrect) {
+                correctAnswers++;
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = `<i class="fas fa-check-circle"></i> Correct!`;
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `<i class="fas fa-times-circle"></i> Incorrect.<br><strong>Correct answer:</strong> ${correctAnswer}`;
+            }
+
+            feedback.style.display = 'block';
+            updateDisplay();
+
+            setTimeout(() => {
+                nextQuestion();
+            }, 2000);
+        }
+
+        // Skip question
+        function skipQuestion() {
+            if (answered) return;
+            answered = true;
+            
+            const scale = testQuestions[currentQuestionIndex];
+            const feedback = document.getElementById('feedback');
+            let correctAnswer = '';
+
+            if (testMode === 'notes') {
+                correctAnswer = scale.notes.join(', ');
+            } else if (testMode === 'scale') {
+                correctAnswer = scale.name;
+            } else if (testMode === 'intervals') {
+                correctAnswer = scale.intervals;
+            }
+
+            feedback.className = 'feedback skipped';
+            feedback.innerHTML = `<i class="fas fa-forward"></i> Skipped.<br><strong>Answer:</strong> ${correctAnswer}`;
+            feedback.style.display = 'block';
+
+            setTimeout(() => {
+                nextQuestion();
+            }, 2000);
+        }
+
+        // Move to next question
+        function nextQuestion() {
+            currentQuestionIndex++;
+            showQuestion();
+        }
+
+        // Update display elements
+        function updateDisplay() {
+            document.getElementById('correctCount').textContent = correctAnswers;
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${testQuestions.length}`;
+            
+            const progress = ((currentQuestionIndex + 1) / testQuestions.length) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+        }
+
+        // Show results
+        function showResults() {
+            document.getElementById('questionCard').style.display = 'none';
+            document.getElementById('resultsCard').style.display = 'block';
+            
+            const percentage = Math.round((correctAnswers / testQuestions.length) * 100);
+            document.getElementById('finalScore').textContent = `${percentage}%`;
+            
+            let message = '';
+            if (percentage >= 90) {
+                message = 'Outstanding! You have excellent knowledge of musical scales!';
+            } else if (percentage >= 75) {
+                message = 'Great job! You have a solid understanding of musical scales.';
+            } else if (percentage >= 60) {
+                message = 'Good work! Keep practicing to improve your musical scale knowledge.';
+            } else {
+                message = 'Keep studying! Musical scales take time to master.';
+            }
+            
+            document.getElementById('resultsMessage').textContent = message;
+        }
+
+        // Back to menu
+        function backToMenu() {
+            document.getElementById('testModeSelection').style.display = 'block';
+            document.getElementById('progressBarContainer').style.display = 'none';
+            document.getElementById('scoreBoard').style.display = 'none';
+            document.getElementById('questionCard').style.display = 'none';
+            document.getElementById('resultsCard').style.display = 'none';
+        }
+
+        // Restart test
+        function restartTest() {
+            backToMenu();
+        }
+
+        // Handle Enter key
+        document.getElementById('answerInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !answered) {
+                submitAnswer();
+            }
+        });
+
+        document.getElementById('intervalInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !answered) {
+                submitAnswer();
+            }
+        });
+    </script>
+</body>
+</html>
