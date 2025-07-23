@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navbar Test</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="js/navbar-loader.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .test-content {
+            margin-top: 100px;
+            padding: 20px;
+        }
+        /* Override mobile styles to ensure dropdowns work on all screen sizes */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: flex !important;
+            }
+            
+            .dropdown-menu {
+                position: absolute !important;
+                background: white !important;
+                border: 1px solid #e5e7eb !important;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+                opacity: 0 !important;
+                visibility: hidden !important;
+                transform: translateY(-10px) !important;
+                min-width: 180px !important;
+            }
+            
+            .dropdown.active .dropdown-menu {
+                opacity: 1 !important;
+                visibility: visible !important;
+                transform: translateY(0) !important;
+            }
+            
+            .dropdown-menu a {
+                padding: 0.75rem 1rem !important;
+                border-bottom: 1px solid #f3f4f6 !important;
+                color: #333 !important;
+            }
+            
+            .dropdown-menu a:hover {
+                background: #f9fafb !important;
+                padding-left: 1.25rem !important;
+            }
+        }
+    </style>
+</head>
+<body data-navbar-autoload>
+    <!-- Navigation will be loaded here by navbar-loader.js -->
+    <div id="navbar-container"></div>
+    
+    <div class="test-content">
+        <h1>Navbar Dropdown Test</h1>
+        <p>Click on the "Elements" or "Music" dropdown menus in the navbar above.</p>
+        <p>Open the browser console (F12) to see debug messages.</p>
+        
+        <div style="margin-top: 20px;">
+            <button onclick="testDropdowns()">Test Dropdown JavaScript</button>
+        </div>
+        
+        <div id="test-results" style="margin-top: 20px; padding: 10px; background: #f0f0f0; display: none;">
+        </div>
+    </div>
+    
+    <script>
+        function testDropdowns() {
+            const results = document.getElementById('test-results');
+            const dropdowns = document.querySelectorAll('.dropdown');
+            const toggles = document.querySelectorAll('.dropdown-toggle');
+            const menus = document.querySelectorAll('.dropdown-menu');
+            
+            let resultText = '';
+            resultText += `Found ${dropdowns.length} dropdown containers<br>`;
+            resultText += `Found ${toggles.length} dropdown toggles<br>`;
+            resultText += `Found ${menus.length} dropdown menus<br>`;
+            
+            if (dropdowns.length > 0) {
+                const firstDropdown = dropdowns[0];
+                firstDropdown.classList.add('active');
+                resultText += `Added 'active' class to first dropdown<br>`;
+                
+                setTimeout(() => {
+                    const isVisible = window.getComputedStyle(firstDropdown.querySelector('.dropdown-menu')).visibility;
+                    const opacity = window.getComputedStyle(firstDropdown.querySelector('.dropdown-menu')).opacity;
+                    resultText += `First dropdown menu visibility: ${isVisible}, opacity: ${opacity}<br>`;
+                    
+                    firstDropdown.classList.remove('active');
+                    resultText += `Removed 'active' class from first dropdown<br>`;
+                    
+                    results.innerHTML = resultText;
+                }, 100);
+            }
+            
+            results.style.display = 'block';
+            results.innerHTML = resultText;
+        }
+        
+        // Listen for navbar loaded event
+        window.addEventListener('navbarLoaded', () => {
+            console.log('Navbar loaded event received');
+            setTimeout(() => {
+                const dropdowns = document.querySelectorAll('.dropdown');
+                console.log('Dropdowns found after navbar load:', dropdowns.length);
+                dropdowns.forEach((dropdown, index) => {
+                    console.log(`Dropdown ${index + 1}:`, dropdown);
+                });
+            }, 50);
+        });
+    </script>
+</body>
+</html>

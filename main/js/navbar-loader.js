@@ -117,6 +117,7 @@ class NavbarLoader {
         
         // Add full navbar functionality to fallback
         setTimeout(() => {
+            console.log('Initializing fallback navbar...'); // Debug log
             this.initializeFallbackNavbar();
             // Dispatch custom event to notify that navbar is loaded
             window.dispatchEvent(new CustomEvent('navbarLoaded'));
@@ -142,6 +143,15 @@ class NavbarLoader {
             }
         }
         
+        // Remove any existing dropdown listeners to prevent duplicates
+        const existingDropdowns = document.querySelectorAll('.dropdown');
+        existingDropdowns.forEach(dropdown => {
+            const toggle = dropdown.querySelector('.dropdown-toggle');
+            if (toggle) {
+                toggle.replaceWith(toggle.cloneNode(true));
+            }
+        });
+        
         // Add dropdown functionality
         const dropdowns = document.querySelectorAll('.dropdown');
         
@@ -151,6 +161,9 @@ class NavbarLoader {
             if (dropdownToggle) {
                 dropdownToggle.addEventListener('click', function(e) {
                     e.preventDefault();
+                    e.stopPropagation();
+                    
+                    console.log('Dropdown clicked:', dropdown); // Debug log
                     
                     // Close other dropdowns
                     dropdowns.forEach(otherDropdown => {
@@ -161,6 +174,7 @@ class NavbarLoader {
                     
                     // Toggle current dropdown
                     dropdown.classList.toggle('active');
+                    console.log('Dropdown active state:', dropdown.classList.contains('active')); // Debug log
                 });
             }
         });
@@ -182,6 +196,8 @@ class NavbarLoader {
                 });
             }
         });
+        
+        console.log('Fallback navbar initialized, found', dropdowns.length, 'dropdowns'); // Debug log
     }
 }
 
